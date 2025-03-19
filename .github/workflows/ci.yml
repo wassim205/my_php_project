@@ -46,12 +46,18 @@ jobs:
         run: |
           vendor/bin/phpunit --testdox --verbose --coverage-text --coverage-clover=build/logs/coverage.xml
 
-      # Upload PHPUnit Test Results (if you're generating JUnit results)
+      # List files to confirm paths before uploading
+      - name: List files to confirm paths
+        run: |
+          ls -la build/
+          ls -la build/logs/
+
+      # Upload PHPUnit Test Results
       - name: Upload PHPUnit Test Results
         uses: actions/upload-artifact@v3
         with:
           name: phpunit-test-results
-          path: build/test-results.xml  # Make sure PHPUnit generates this file
+          path: build/test-results.xml  # Make sure this path is correct and exists
 
       # Upload Coverage Report as an artifact
       - name: Upload Coverage Report
