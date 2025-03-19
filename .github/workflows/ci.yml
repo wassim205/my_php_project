@@ -1,27 +1,47 @@
 name: PHP CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set Up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
+          coverage: true
 
       - name: Install Dependencies
         run: |
-          composer install
-          composer dump-autoload
+          composer install --prefer-dist --no-dev --no-scripts
+          composer dump-autoload --classmap-authoritative
 
       - name: Fix Permissions
-        run: chmod +x vendor/bin/phpunit  # ✅ Fix execution issue
+        run: chmod +x vendor/bin/phpunit
+
+      - name: Debug PHP & Composer
+        run: |
+          php -v
+          composer show
+          ls -la vendor/bin
 
       - name: Run Tests
-        run: vendor/bin/phpunit --testdox
+        run: vendor/bin/phpunit --testdox --verbose --coverage-text --colors=never
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: build/logs/coverage.xml
